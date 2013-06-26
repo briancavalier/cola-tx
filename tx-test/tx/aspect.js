@@ -4,11 +4,17 @@ define(function() {
 	return function(begin, joinpointObserver) {
 		return {
 			around: function(joinpoint) {
-				return begin(function(tx) {
-					joinpointObserver(joinpoint, tx);
+				var methodResult;
 
-					return joinpoint.proceed();
+				begin(function(tx) {
+					var observerResult = joinpointObserver(joinpoint, tx);
+
+					methodResult = joinpoint.proceed();
+
+					return [methodResult, observerResult];
 				});
+
+				return methodResult;
 			}
 		};
 	};

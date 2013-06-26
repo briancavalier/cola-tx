@@ -1,7 +1,7 @@
 (function(define) {
 define(function(require) {
 
-	var meld, txAspect, txBegin, pojoObserver, joinpointObserver;
+	var meld, txAspect, txBegin, pojoObserver, joinpointObserver, createObserver;
 
 	meld = require('meld');
 	txAspect = require('./tx/aspect');
@@ -9,56 +9,58 @@ define(function(require) {
 	pojoObserver = require('./observer/pojoObserver');
 	joinpointObserver = require('./observer/joinpointObserver');
 
-	function run() {
-		var data, person, observer, aspect, begin, thing1, thing2;
+	createObserver = pojoObserver.bind(null, function(changes) {
+		console.log('COMMIT----------------------------------');
+		changes.forEach(function(item) {
+			console.log(JSON.stringify(item));
+		});
+		console.log('----------------------------------------');
+	}, jsonDiff);
 
-		data = [
-			{ id: 1, name: 'Brian' }
-		];
+	function objectTest() {
+		var data, person, observer, aspect, begin, thing;
 
-		person = { id: 2, name: 'John' };
+		data = { id: 1, name: 'Brian' };
 
-		observer = pojoObserver(function(changes) {
-			console.log('COMMIT----------------------------------');
-			changes.forEach(function(item) {
-				console.log(JSON.stringify(item));
-			});
-			console.log('----------------------------------------');
-		}, jsonDiff, [data, person]);
+		person = new Person(data);
+
+		observer = createObserver([data]);
 		begin = txBegin();
 		aspect = txAspect(begin, joinpointObserver(observer));
 
-		thing1 = new Thing1(data);
-		thing2 = new Thing2(person);
+		thing = new Thing(person);
 
-		meld(thing1, 'add', aspect);
-		meld(thing2, 'setName', aspect);
+		meld(person, 'setName', aspect);
+//		meld(thing, 'setName', aspect);
 
-		thing1.add(person);
-
-		thing2.setName('Scott');
+		thing.setName('John');
 	}
 
-	function Thing1(data) {
-		this.data = data;
+	function arrayTest() {
+		// TODO
 	}
 
-	Thing1.prototype = {
-		add: function(person) {
-			this.data.push(person);
-			return this.data.length;
-		}
-	};
-
-	function Thing2(person) {
+	function Thing(person) {
 		this.person = person;
 	}
 
-	Thing2.prototype = {
+	Thing.prototype = {
 		setName: function(name) {
-			this.person.name = name;
+			this.person.setName(name);
+			return this;
 		}
 	};
+
+	function Person(data) {
+		this.data = data;
+	}
+
+	Person.prototype = {
+		setName: function(name) {
+			this.data.name = name;
+			return this;
+		}
+	}
 
 	function jsonDiff(previousValue) {
 		var previousValue = JSON.stringify(previousValue);
@@ -67,7 +69,10 @@ define(function(require) {
 		}
 	}
 
-	return run;
+	return function() {
+		objectTest();
+		arrayTest();
+	};
 
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(require); }));

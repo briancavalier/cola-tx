@@ -10,7 +10,7 @@ define(function() {
 
 		stats = generateStats(makeComparator, list);
 
-		return function(tx, dataObjects) {
+		return function(dataObjects, tx) {
 			var candidates;
 
 			// Find candidate data objects
@@ -24,7 +24,7 @@ define(function() {
 			// previous value, to collect items that actually changed,
 			// and then notify.
 			if(candidates.length) {
-				tx.then(function() {
+				return tx.then(function() {
 					return notify(findChanges(candidates));
 				});
 			}

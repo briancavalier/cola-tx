@@ -24,7 +24,7 @@ define(function() {
 				candidates.push(target[name]);
 			}
 
-			return observer(tx, candidates);
+			return observer(candidates, tx);
 		}
 
 	};

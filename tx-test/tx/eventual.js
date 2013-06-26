@@ -9,9 +9,7 @@ define(function() {
 			args = Array.prototype.slice.call(arguments, 1);
 
 			return begin(function(tx) {
-				observer(tx);
-
-				return run.apply(self, args);
+				return [observer(tx), run.apply(self, args)];
 			});
 		};
 	};
