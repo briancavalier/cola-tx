@@ -5,26 +5,29 @@
 (function(define) {
 define(function(require) {
 
-	var when = require('when');
+	var when, undef;
+
+	when = require('when');
 
 	return function create() {
-		var tx, commit, completed, depth;
+		var tx, preCommit, completed, depth, committers;
 
 		depth = 0;
+		committers = [];
 
 		return function begin(run) {
 			var result, error, threw;
 
 			if(depth === 0) {
 				tx = when.defer();
-				commit = tx.promise;
+				preCommit = tx.promise;
 				completed = when.defer();
 			}
 
 			depth += 1;
 			try {
 				result = run(tx.promise);
-				commit = commit.yield(result[1])
+				committers.unshift(result[1]);
 			} catch(e) {
 				threw = true;
 				error = e;
@@ -34,24 +37,50 @@ define(function(require) {
 
 			if(depth === 0) {
 				if(threw) {
-					tx.reject(error).ensure(function() {
-						return commit.ensure(function() {
-							return completed.reject(error);
-						});
-					});
+					abort(tx, error, committers, completed);
 				} else {
-					return when(result[0],
-						function(r) {
-							tx.resolve();
-							return completed.resolve(commit).yield(r);
-						},
-						tx.reject);
+					commit(tx, result[0], committers, completed);
 				}
 			}
 
+			committers = undef;
+
 			return completed.promise;
 		}
+	}
 
+	function commit(tx, transactionResult, committers, completed) {
+		return when(transactionResult,
+			function (r) {
+				tx.resolve();
+				return when.settle(committers).then(function (results) {
+					var error, failed;
+					failed = results.some(function (status) {
+						if (status.state === 'rejected') {
+							error = status.reason;
+							return true;
+						}
+					});
+
+					if (failed) {
+						completed.reject(error);
+					} else {
+						completed.resolve(r);
+					}
+
+					return completed.promise;
+				});
+			},
+			tx.reject
+		);
+	}
+
+	function abort(tx, error, committers, completed) {
+		tx.reject(error).ensure(function () {
+			return when.settle(committers).then(function () {
+				return completed.reject(error);
+			});
+		});
 	}
 
 });
