@@ -51,7 +51,7 @@ define(function(require) {
 		var found;
 
 		map.some(function(item) {
-			if(item.value === candidate) {
+			if(item.test(candidate)) {
 				found = item;
 				return true;
 			}

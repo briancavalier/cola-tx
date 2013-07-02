@@ -12,11 +12,20 @@ define(function() {
 				if(key in snapshot) {
 					if(snapshot[key] !== after[key]) {
 						// Property value changed
-						changes.push({ type: 'updated', object: after, name: key });
+						changes.push({
+							type: 'updated',
+							object: after,
+							name: key,
+							oldValue: snapshot[key]
+						});
 					}
 				} else {
 					// Property added
-					changes.push({ type: 'new', object: after, name: key });
+					changes.push({
+						type: 'new',
+						object: after,
+						name: key
+					});
 				}
 
 				return changes;
@@ -25,7 +34,11 @@ define(function() {
 			changes = Object.keys(snapshot).reduce(function(changes, key) {
 				if(!(key in after)) {
 					// Property deleted
-					changes.push({ type: 'deleted', object: after, name: key });
+					changes.push({
+						type: 'deleted',
+						object: after,
+						name: key
+					});
 				}
 
 				return changes;

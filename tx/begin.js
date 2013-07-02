@@ -13,7 +13,6 @@ define(function(require) {
 		var tx, preCommit, completed, depth, committers;
 
 		depth = 0;
-		committers = [];
 
 		return function begin(run) {
 			var result, error, threw;
@@ -21,6 +20,7 @@ define(function(require) {
 			if(depth === 0) {
 				tx = when.defer();
 				preCommit = tx.promise;
+				committers = [];
 				completed = when.defer();
 			}
 
@@ -41,9 +41,9 @@ define(function(require) {
 				} else {
 					commit(tx, result[0], committers, completed);
 				}
-			}
 
-			committers = undef;
+				committers = undef;
+			}
 
 			return completed.promise;
 		}

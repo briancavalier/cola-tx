@@ -8,6 +8,8 @@ define(function() {
 			return function(tx, object) {
 				return tx.then(function() {
 					return observe(tx, object[property]);
+				}, function() {
+					return observe(tx, object[property]);
 				});
 			}
 		};
