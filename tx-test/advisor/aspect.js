@@ -1,14 +1,14 @@
 (function(define) {
 define(function() {
 
-	return function(begin, observer) {
+	return function(begin, joinpointObserver) {
 		return {
 			around: function(joinpoint) {
 				var methodResult;
 
 				begin(function(tx) {
 					// TODO: How to handle a failure here?
-					var observerResult = observer(tx);
+					var observerResult = joinpointObserver(joinpoint, tx);
 
 					methodResult = joinpoint.proceed();
 

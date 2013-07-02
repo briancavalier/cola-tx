@@ -1,32 +1,32 @@
-var meld, txAspect, txBegin, diffArray, diffObject, objectObserver, createObserver;
+var meld, txAspect, txBegin, diffArray, diffObject, joinpointObserver, createObserver, observer;
 
 meld = require('meld');
-txAspect = require('./tx/aspect');
+
+txAspect = require('./advisor/aspect');
+joinpointObserver = require('./advisor/joinpointObserver');
+
 txBegin = require('./tx/begin');
-objectObserver = require('./observer/observer');
+createObserver = require('./tx/changeObserver');
 diffArray = require('./diff/array');
 diffObject = require('./diff/object');
 
-createObserver = objectObserver.bind(null, function(array) {
-	var diff = diffArray(diffObject)(array);
+function handler(tx, changes) {
+	return tx.then(function() {
+		if(changes) {
+			console.log('COMMIT----------------------------------');
+			console.log(JSON.stringify(changes, null, '  '));
+			console.log('----------------------------------------');
+		}
+	}, function(e) {
+		console.error(e.stack);
+		throw e;
+	});
+}
 
-	return function(tx) {
-		return tx.then(function() {
-			var changes = diff(array);
-			if(changes) {
-				console.log('COMMIT----------------------------------');
-				console.log(JSON.stringify(changes, null, '  '));
-				console.log('----------------------------------------');
-			}
-		}, function(e) {
-			console.error(e.stack);
-			throw e;
-		});
-	}
-});
+observer = createObserver(diffArray(diffObject), handler);
 
 function arrayTest() {
-	var data, observer, aspect, begin, thing;
+	var data, aspect, begin, thing;
 
 	data = [
 		{ id: 1, name: 'John' },
@@ -34,7 +34,7 @@ function arrayTest() {
 		{ id: 3, name: 'Scott' }
 	];
 
-	observer = createObserver(data);
+	observer = joinpointObserver([{ value: data, observer: observer(data) }]);
 	begin = txBegin();
 	aspect = txAspect(begin, observer);
 

@@ -27,7 +27,7 @@ define(function(require) {
 			depth += 1;
 			try {
 				result = run(tx.promise);
-				committers.unshift(result[1]);
+				committers.push(result[1]);
 			} catch(e) {
 				threw = true;
 				error = e;
