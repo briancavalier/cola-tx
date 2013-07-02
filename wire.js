@@ -11,7 +11,7 @@
 (function(define) { 'use strict';
 define(function(require) {
 
-	var when, propertiesKey, byProperty, txAspect, txBegin,
+	var when, txAspect, txBegin,
 		diffArray, diffObject, joinpointObserver, createObserver, observer,
 		collectionUpdaters,
 		defaultComparator, defaultQuerySelector, defaultQuerySelectorAll,
@@ -26,9 +26,6 @@ define(function(require) {
 	createObserver = require('./tx/changeObserver');
 	diffArray = require('./diff/array');
 	diffObject = require('./diff/object');
-
-	propertiesKey = require('cola/relational/propertiesKey');
-	byProperty = require('cola/comparator/byProperty');
 
 	defaultComparator = byProperty('id');
 	defaultQuerySelector = { $ref: 'dom.first!' };
