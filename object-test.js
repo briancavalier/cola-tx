@@ -32,7 +32,7 @@ function objectTest() {
 
 	person = new Person(data);
 
-	observer = joinpointObserver([{ value: data, observer: observer }]);
+	observer = joinpointObserver([{ test: function(x) { return x === data; }, observer: observer }]);
 	begin = txBegin();
 	aspect = txAspect(begin, observer);
 

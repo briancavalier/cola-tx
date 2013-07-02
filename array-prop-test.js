@@ -35,7 +35,7 @@ function arrayPropertyTest() {
 		{ id: 3, name: 'Scott' }
 	];
 
-	observer = joinpointObserver([{ value: data, observer: observer }]);
+	observer = joinpointObserver([{ test: function(x) { return x === data; }, observer: observer }]);
 	begin = txBegin();
 	aspect = txAspect(begin, observer);
 
