@@ -2,14 +2,14 @@
 define(function() {
 
 	return function createObserver(prepareDiff, handler) {
-		return function(array) {
-			var diff = prepareDiff(array);
+		return function(x) {
+			var diff = prepareDiff(x);
 
-			return function(tx) {
+			return function(tx, y) {
 				return tx.then(function() {
-					return handler(tx, diff(array));
+					return handler(tx, diff(y));
 				}, function() {
-					return handler(tx, diff(array));
+					return handler(tx, diff(y));
 				});
 			};
 		};

@@ -5,7 +5,10 @@
 (function(define) {
 define(function(require) {
 
-	var when = require('when');
+	var when, propertyChangeObserver;
+
+	when = require('when');
+	propertyChangeObserver = require('../tx/propertyChangeObserver');
 
 	return function(observerMap) {
 
@@ -22,18 +25,22 @@ define(function(require) {
 
 			candidates = args.slice();
 
-			for(name in target) {
-				candidates.push(target[name]);
-			}
-
 			var prepared = candidates.reduce(function(prepared, candidate) {
-				var observer = findObserver(observerMap, candidate);
-				if(observer) {
-					prepared.push(observer(tx));
+				var found = findObserver(observerMap, candidate);
+				if(found) {
+					prepared.push(found.observer(candidate)(tx, candidate));
 				}
 
 				return prepared;
 			}, []);
+
+			for(name in target) {
+				var found = findObserver(observerMap, target[name]);
+				if(found) {
+					// TODO: Very ugly, but works
+					prepared.push(propertyChangeObserver(found.observer, name)(target)(tx, target));
+				}
+			}
 
 			return when.all(prepared);
 		};
@@ -45,7 +52,7 @@ define(function(require) {
 
 		map.some(function(item) {
 			if(item.value === candidate) {
-				found = item.observer;
+				found = item;
 				return true;
 			}
 		});

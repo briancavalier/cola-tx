@@ -1,4 +1,4 @@
-var meld, txAspect, txBegin, diffArray, diffObject, joinpointObserver, createObserver, observer;
+var meld, txAspect, txBegin, diffArray, diffObject, joinpointObserver, createObserver, propertyChangeObserver, observer;
 
 meld = require('meld');
 
@@ -7,6 +7,7 @@ joinpointObserver = require('./advisor/joinpointObserver');
 
 txBegin = require('./tx/begin');
 createObserver = require('./tx/changeObserver');
+propertyChangeObserver = require('./tx/propertyChangeObserver');
 diffArray = require('./diff/array');
 diffObject = require('./diff/object');
 
@@ -25,7 +26,7 @@ function handler(tx, changes) {
 
 observer = createObserver(diffArray(diffObject), handler);
 
-function arrayTest() {
+function arrayPropertyTest() {
 	var data, aspect, begin, thing;
 
 	data = [
@@ -51,10 +52,10 @@ function Thing(people) {
 
 Thing.prototype = {
 	doStuff: function() {
-		this.people.push({ id: 4, name: 'Jeremy' });
-		this.people.shift();
-		this.people[0].name = 'Frank';
+		this.people = this.people.filter(function(person) {
+			return person.name != 'Brian';
+		});
 	}
 };
 
-arrayTest();
+arrayPropertyTest();
