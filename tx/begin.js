@@ -9,78 +9,39 @@ define(function(require) {
 
 	when = require('when');
 
-	return function create() {
-		var tx, preCommit, completed, depth, committers;
-
-		depth = 0;
+	return function create(enqueue) {
 
 		return function begin(run) {
-			var result, error, threw;
+			var tx, result;
 
-			if(depth === 0) {
-				tx = when.defer();
-				preCommit = tx.promise;
-				committers = [];
-				completed = when.defer();
-			}
+			tx = when.defer();
 
-			depth += 1;
 			try {
 				result = run(tx.promise);
-				committers.push(result[1]);
 			} catch(e) {
-				threw = true;
-				error = e;
-			} finally {
-				depth -= 1;
+				result = when.reject(e);
+				result = [result, result];
 			}
 
-			if(depth === 0) {
-				if(threw) {
-					abort(tx, error, committers, completed);
-				} else {
-					commit(tx, result[0], committers, completed);
-				}
-
-				committers = undef;
-			}
-
-			return completed.promise;
-		}
-	}
-
-	function commit(tx, transactionResult, committers, completed) {
-		return when(transactionResult,
-			function (r) {
-				tx.resolve();
-				return when.settle(committers).then(function (results) {
-					var error, failed;
-					failed = results.some(function (status) {
-						if (status.state === 'rejected') {
-							error = status.reason;
-							return true;
-						}
-					});
-
-					if (failed) {
-						completed.reject(error);
-					} else {
-						completed.resolve(r);
-					}
-
-					return completed.promise;
-				});
-			},
-			tx.reject
-		);
-	}
-
-	function abort(tx, error, committers, completed) {
-		tx.reject(error).ensure(function () {
-			return when.settle(committers).then(function () {
-				return completed.reject(error);
+			return enqueue(function() {
+				complete(tx, result[0], result[1]);
 			});
-		});
+		};
+	};
+
+	function complete(tx, bodyResult, committerResult) {
+		return when(bodyResult,
+			function(result) {
+				tx.resolve();
+				return when(committerResult).yield(result);
+			},
+			function(error) {
+				tx.reject(error);
+				return when(committerResult, function() {
+					throw error;
+				});
+			}
+		);
 	}
 
 });

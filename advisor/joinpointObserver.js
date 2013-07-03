@@ -47,7 +47,7 @@ define(function(require) {
 					prepared.push(resultObserver(tx, result));
 				}
 				return when.all(prepared);
-			}
+			};
 		};
 
 	};

@@ -1,7 +1,8 @@
-var meld, txAspect, txBegin, diffArray, diffObject, joinpointObserver, createObserver, propertyChangeObserver, observer;
+var meld, queue, txAspect, txBegin, diffArray, diffObject, joinpointObserver, createObserver, propertyChangeObserver, observer;
 
 meld = require('meld');
 
+queue = require('./tx/queue');
 txAspect = require('./advisor/aspect');
 joinpointObserver = require('./advisor/joinpointObserver');
 
@@ -36,7 +37,7 @@ function arrayPropertyTest() {
 	];
 
 	observer = joinpointObserver([{ test: function(x) { return x === data; }, observer: observer }]);
-	begin = txBegin();
+	begin = txBegin(queue());
 	aspect = txAspect(begin, observer);
 
 	thing = new Thing(data);

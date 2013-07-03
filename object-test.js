@@ -1,7 +1,8 @@
-var meld, txAspect, txBegin, diffObject, joinpointObserver, createObserver, observer;
+var meld, queue, txAspect, txBegin, diffObject, joinpointObserver, createObserver, observer;
 
 meld = require('meld');
 
+queue = require('./tx/queue');
 txAspect = require('./advisor/aspect');
 joinpointObserver = require('./advisor/joinpointObserver');
 
@@ -33,7 +34,7 @@ function objectTest() {
 	person = new Person(data);
 
 	observer = joinpointObserver([{ test: function(x) { return x === data; }, observer: observer }]);
-	begin = txBegin();
+	begin = txBegin(queue());
 	aspect = txAspect(begin, observer);
 
 	thing = new Thing(person);
@@ -63,6 +64,6 @@ Person.prototype = {
 		this.data.name = name;
 		return this;
 	}
-}
+};
 
 objectTest();

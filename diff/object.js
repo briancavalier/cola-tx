@@ -45,7 +45,7 @@ define(function() {
 			}, changes);
 
 			return changes.length ? changes : false;
-		}
+		};
 	};
 
 });

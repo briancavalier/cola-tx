@@ -14,7 +14,7 @@ define(function() {
 				};
 
 				if(snapshotItem) {
-					s.compare = snapshotItem(item)
+					s.compare = snapshotItem(item);
 				}
 
 				return snapshot;
@@ -84,7 +84,7 @@ define(function() {
 			};
 		};
 
-	}
+	};
 
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(); }));

@@ -11,9 +11,9 @@ define(function() {
 				}, function() {
 					return observe(tx, object[property]);
 				});
-			}
+			};
 		};
-	}
+	};
 
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(); }));

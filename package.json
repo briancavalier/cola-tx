@@ -1,0 +1,30 @@
+{
+	"name": "cola-tx",
+	"version": "0.1.0",
+	"description": "Experiment with transaction-like object diffing",
+	"main": "tx/begin",
+	"directories": {
+		"test": "test"
+	},
+	"dependencies": {
+		"meld": "~1",
+		"when": "~2"
+	},
+	"devDependencies": {
+		"buster": "~0.6",
+		"jshint": "~2"
+	},
+	"scripts": {
+		"test": "jshint . && buster test -e node"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/briancavalier/cola-tx.git"
+	},
+	"author": "brian@hovercraftstudios.com",
+	"license": "MIT",
+	"gitHead": "b08dc286b08261b0d6ef1b0a4129f64a3188e096",
+	"bugs": {
+		"url": "https://github.com/briancavalier/cola-tx/issues"
+	}
+}
