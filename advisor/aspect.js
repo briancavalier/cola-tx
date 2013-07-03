@@ -8,11 +8,11 @@ define(function() {
 
 				begin(function(tx) {
 					// TODO: How to handle a failure here?
-					var observerResult = joinpointObserver(joinpoint, tx);
+					var observeResult = joinpointObserver(tx, joinpoint);
 
 					methodResult = joinpoint.proceed();
 
-					return [methodResult, observerResult];
+					return [methodResult, observeResult(methodResult)];
 				});
 
 				return methodResult;

@@ -11,11 +11,8 @@
 (function(define) { 'use strict';
 define(function(require) {
 
-	var when, txAspect, txBegin,
-		diffArray, diffObject, joinpointObserver, createObserver, observer,
-		collectionUpdaters,
-		defaultComparator, defaultQuerySelector, defaultQuerySelectorAll,
-		defaultOn;
+	var when, txAspect, txBegin, diffArray, diffObject,
+		joinpointObserver, createObserver, observer, collectionUpdaters;
 
 	when = require('when');
 
@@ -26,11 +23,6 @@ define(function(require) {
 	createObserver = require('./tx/changeObserver');
 	diffArray = require('./diff/array');
 	diffObject = require('./diff/object');
-
-	defaultComparator = byProperty('id');
-	defaultQuerySelector = { $ref: 'dom.first!' };
-	defaultQuerySelectorAll = { $ref: 'dom.all!' };
-	defaultOn = { $ref: 'on!' };
 
 	collectionUpdaters = {
 		new: function(collection, change) {
@@ -69,7 +61,6 @@ define(function(require) {
 		}
 
 		function doBind(proxy, to, options, wire) {
-			var target = proxy.target;
 
 			return wire(options).then(bindTx);
 
@@ -82,7 +73,7 @@ define(function(require) {
 				observer = joinpointObserver([
 					{
 						test: function(candidate) {
-							return candidate === target[to];
+							return candidate === proxy.get(to);
 						},
 						observer: createObserver(diffArray(diffObject),
 							syncObservers)
@@ -91,8 +82,6 @@ define(function(require) {
 
 				aspect = txAspect(txBegin(), observer);
 				aspects.push(proxy.advise(pointcut, aspect));
-
-				return target;
 
 				function syncObservers(tx, changes) {
 					return when.map(observers, function(observer) {

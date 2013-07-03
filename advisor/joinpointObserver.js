@@ -10,9 +10,9 @@ define(function(require) {
 	when = require('when');
 	propertyChangeObserver = require('../tx/propertyChangeObserver');
 
-	return function(observerMap) {
+	return function(observerMap, resultObserver) {
 
-		return function(joinpoint, tx) {
+		return function(tx, joinpoint) {
 
 			var candidates, name, target, method, args;
 
@@ -42,7 +42,12 @@ define(function(require) {
 				}
 			}
 
-			return when.all(prepared);
+			return function(result) {
+				if(resultObserver) {
+					prepared.push(resultObserver(tx, result));
+				}
+				return when.all(prepared);
+			}
 		};
 
 	};
