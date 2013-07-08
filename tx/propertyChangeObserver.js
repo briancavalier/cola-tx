@@ -1,19 +1,13 @@
 (function(define) {
-define(function() {
+define(function(require) {
 
-	return function wrapObserver(observer, property) {
-		return function(object) {
-			var observe = observer(object[property]);
+	var mappedChangeObserver = require('./mapChangeObserver');
 
-			return function(tx, object) {
-				return tx.then(function() {
-					return observe(tx, object[property]);
-				}, function() {
-					return observe(tx, object[property]);
-				});
-			};
-		};
+	return function wrapObserver(property, observer) {
+		return mappedChangeObserver(function(x) {
+			return x[property];
+		}, observer);
 	};
 
 });
-}(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(); }));
+}(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(require); }));

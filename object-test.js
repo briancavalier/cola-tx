@@ -11,7 +11,7 @@ createObserver = require('./tx/changeObserver' +
 	'');
 diffObject = require('./diff/object');
 
-function handler(tx, changes) {
+function handler(changes, tx) {
 	return tx.then(function() {
 		if (changes) {
 			console.log('COMMIT----------------------------------');
@@ -33,9 +33,8 @@ function objectTest() {
 
 	person = new Person(data);
 
-	observer = joinpointObserver([{ test: function(x) { return x === data; }, observer: observer }]);
 	begin = txBegin(queue());
-	aspect = txAspect(begin, observer);
+	aspect = txAspect(begin, joinpointObserver([function(x) { return x === data && observer; }]));
 
 	thing = new Thing(person);
 

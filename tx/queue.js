@@ -10,17 +10,15 @@ define(function(require) {
 	return function createQueue() {
 		var queue;
 
-		return function(task) {
-			task = run(task);
-			return queue = when(queue, task, task);
-		};
-	};
+		// Append task to queue
+		// Returns promiseForTaskResult
+		return function enqueue(task) {
+			return queue = when(queue, runTask, runTask);
 
-	function run(task) {
-		return function() {
-			return task();
+			function runTask() { return task(); }
 		};
-	}
+
+	};
 
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(require); }));

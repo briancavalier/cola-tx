@@ -10,14 +10,13 @@ define(function(require) {
 	when = require('when');
 	propertyChangeObserver = require('../tx/propertyChangeObserver');
 
-	return function(observerMap, resultObserver) {
+	return function(observerTests, resultObserver) {
 
-		return function(tx, joinpoint) {
+		return function(joinpoint) {
 
-			var candidates, name, target, method, args;
+			var candidates, name, target, args, observer;
 
 			target = joinpoint.target;
-			method = joinpoint.method;
 			args = joinpoint.args;
 
 			// Find candidate objects in method arguments,
@@ -26,38 +25,43 @@ define(function(require) {
 			candidates = args.slice();
 
 			var prepared = candidates.reduce(function(prepared, candidate) {
-				var found = findObserver(observerMap, candidate);
-				if(found) {
-					prepared.push(found.observer(candidate)(tx, candidate));
+				var observer = findObserver(observerTests, candidate);
+				if(observer) {
+					prepared.push(observer(candidate)(candidate));
 				}
 
 				return prepared;
 			}, []);
 
 			for(name in target) {
-				var found = findObserver(observerMap, target[name]);
-				if(found) {
+				observer = findObserver(observerTests, target[name]);
+				if(observer) {
 					// TODO: Very ugly, but works
-					prepared.push(propertyChangeObserver(found.observer, name)(target)(tx, target));
+					prepared.push(propertyChangeObserver(name, observer)(target)(target));
 				}
 			}
 
 			return function(result) {
 				if(resultObserver) {
-					prepared.push(resultObserver(tx, result));
+					prepared.push(resultObserver(result));
 				}
-				return when.all(prepared);
+				return function(tx) {
+					return when.all(prepared.map(function(observer) {
+						return observer(tx);
+					}));
+				};
 			};
 		};
 
 	};
 
-	function findObserver(map, candidate) {
+	function findObserver(tests, candidate) {
 		var found;
 
-		map.some(function(item) {
-			if(item.test(candidate)) {
-				found = item;
+		tests.some(function(test) {
+			var observer = test(candidate);
+			if(observer) {
+				found = observer;
 				return true;
 			}
 		});

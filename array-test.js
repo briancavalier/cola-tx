@@ -11,7 +11,7 @@ createObserver = require('./tx/changeObserver');
 diffArray = require('./diff/array');
 diffObject = require('./diff/object');
 
-function handler(tx, changes) {
+function handler(changes, tx) {
 	return tx.then(function() {
 		if(changes) {
 			console.log('COMMIT----------------------------------');
@@ -35,9 +35,8 @@ function arrayTest() {
 		{ id: 3, name: 'Scott' }
 	];
 
-	observer = joinpointObserver([{ test: function(x) { return x === data; }, observer: observer }]);
 	begin = txBegin(queue());
-	aspect = txAspect(begin, observer);
+	aspect = txAspect(begin, joinpointObserver([function(x) { return x === data && observer; }]));
 
 	thing = new Thing(data);
 

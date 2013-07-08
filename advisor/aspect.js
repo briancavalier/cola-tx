@@ -6,9 +6,9 @@ define(function() {
 			around: function(joinpoint) {
 				var methodResult;
 
-				begin(function(tx) {
+				begin(function() {
 					// TODO: How to handle a failure here?
-					var observeResult = joinpointObserver(tx, joinpoint);
+					var observeResult = joinpointObserver(joinpoint);
 
 					methodResult = joinpoint.proceed();
 

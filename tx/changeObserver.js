@@ -5,12 +5,10 @@ define(function() {
 		return function(x) {
 			var diff = prepareDiff(x);
 
-			return function(tx, y) {
-				return tx.then(function() {
-					return handler(tx, diff(y));
-				}, function() {
-					return handler(tx, diff(y));
-				});
+			return function(y) {
+				return function(tx) {
+					return handler(diff(y), tx);
+				};
 			};
 		};
 	};

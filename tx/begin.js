@@ -5,44 +5,39 @@
 (function(define) {
 define(function(require) {
 
-	var when, undef;
-
-	when = require('when');
+	var when = require('when');
 
 	return function create(enqueue) {
 
 		return function begin(run) {
-			var tx, result;
-
-			tx = when.defer();
+			var result;
 
 			try {
-				result = run(tx.promise);
+				result = run();
 			} catch(e) {
-				result = when.reject(e);
-				result = [result, result];
+				result = [when.reject(e), identity];
 			}
 
 			return enqueue(function() {
-				complete(tx, result[0], result[1]);
+				complete(result[0], result[1]);
 			});
 		};
 	};
 
-	function complete(tx, bodyResult, committerResult) {
+	function complete(bodyResult, committer) {
 		return when(bodyResult,
 			function(result) {
-				tx.resolve();
-				return when(committerResult).yield(result);
+				return when(committer(when.resolve())).yield(result);
 			},
 			function(error) {
-				tx.reject(error);
-				return when(committerResult, function() {
+				return when(committer(when.reject(error)), function() {
 					throw error;
 				});
 			}
 		);
 	}
+
+	function identity(x) { return x; }
 
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(require); }));
