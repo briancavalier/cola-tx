@@ -14,7 +14,7 @@ define(function(require) {
 
 		return function(joinpoint) {
 
-			var candidates, name, target, args, observer;
+			var name, target, args, observer;
 
 			target = joinpoint.target;
 			args = joinpoint.args;
@@ -22,9 +22,7 @@ define(function(require) {
 			// Find candidate objects in method arguments,
 			// and in target object's properties
 
-			candidates = args.slice();
-
-			var prepared = candidates.reduce(function(prepared, candidate) {
+			var prepared = args.reduce(function(prepared, candidate) {
 				var observer = findObserver(observerTests, candidate);
 				if(observer) {
 					prepared.push(observer(candidate)(candidate));
