@@ -14,7 +14,7 @@ define(function(require) {
 	var updateArray = require('./updateArray');
 
 	function ArrayStorage(array) {
-		this._array = array || [];
+		this.set(array);
 	}
 
 	ArrayStorage.prototype = {
@@ -23,7 +23,11 @@ define(function(require) {
 		},
 
 		save: function(changes) {
-			return this._array = updateArray(this.array, changes);
+			this._array = updateArray(this.array, changes);
+		},
+
+		set: function(data) {
+			this._array = data || [];
 		}
 	};
 
