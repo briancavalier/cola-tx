@@ -37,7 +37,7 @@ define(function() {
 							changes.push({
 								type: 'updated',
 								object: after,
-								index: index
+								name: index
 							});
 						} else if(s.compare) {
 							// Deep compare if same object.
@@ -46,7 +46,7 @@ define(function() {
 								changes.push({
 									type: 'updated',
 									object: after,
-									index: index,
+									name: index,
 									changes: diff
 								});
 							}
@@ -57,7 +57,7 @@ define(function() {
 						changes.push({
 							type: 'new',
 							object: after,
-							index: index
+							name: index
 						});
 					}
 
@@ -72,7 +72,7 @@ define(function() {
 						changes.push({
 							type: 'deleted',
 							object: after,
-							index: s.index,
+							name: s.index,
 							oldValue: s.item
 						});
 					}

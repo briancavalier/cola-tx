@@ -11,7 +11,7 @@
 (function(define) { 'use strict';
 define(function(require) {
 
-	var when, txAspect, txBegin, diffArray, diffObject,
+	var when, txAspect, txBegin, txQueue, diffArray, diffObject,
 		joinpointObserver, createObserver, observer, collectionUpdaters;
 
 	when = require('when');
@@ -19,6 +19,7 @@ define(function(require) {
 	txAspect = require('./advisor/aspect');
 	joinpointObserver = require('./advisor/joinpointObserver');
 
+	txQueue = require('./tx/queue')();
 	txBegin = require('./tx/begin');
 	createObserver = require('./tx/changeObserver');
 	diffArray = require('./diff/array');
@@ -26,10 +27,10 @@ define(function(require) {
 
 	collectionUpdaters = {
 		new: function(collection, change) {
-			collection.add(change.object[change.index]);
+			collection.add(change.object[change.name]);
 		},
 		updated: function(collection, change) {
-			collection.update(change.object[change.index]);
+			collection.update(change.object[change.name]);
 		},
 		deleted: function(collection, change) {
 			collection.remove(change.oldValue);
@@ -71,23 +72,24 @@ define(function(require) {
 				observers = options.notify;
 
 				observer = joinpointObserver([
-					{
-						test: function(candidate) {
-							return candidate === proxy.get(to);
-						},
-						observer: createObserver(diffArray(diffObject),
-							syncObservers)
+					function(candidate) {
+						return candidate === proxy.get(to)
+							? createObserver(diffArray(diffObject), syncObservers) : null;
 					}
 				]);
 
-				aspect = txAspect(txBegin(), observer);
+				aspect = txAspect(txBegin(txQueue), observer);
 				aspects.push(proxy.advise(pointcut, aspect));
 
-				function syncObservers(tx, changes) {
+				function syncObservers(changes, tx) {
 					return when.map(observers, function(observer) {
 						if(typeof observer === 'function') {
 							return tx.then(function() {
 								return proxy.invoke(observer, [changes]);
+							});
+						} else if(typeof observer.save === 'function') {
+							return tx.then(function() {
+								return observer.save(changes);
 							});
 						}
 
