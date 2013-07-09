@@ -13,6 +13,10 @@ define(function() {
 
 	return function(handlers) {
 		return function update(object, changes) {
+			if(!changes) {
+				return;
+			}
+
 			return changes.reduce(function(object, change) {
 				handlers[change.type](object,
 					change.name, change.object[change.name]);
