@@ -12,7 +12,8 @@
 define(function(require) {
 
 	var when, txAspect, txBegin, txQueue, diffArray, diffObject,
-		joinpointObserver, createObserver, observer, collectionUpdaters;
+		joinpointObserver, createObserver, mappedObserver, observer,
+		collectionUpdaters;
 
 	when = require('when');
 
@@ -22,6 +23,7 @@ define(function(require) {
 	txQueue = require('./tx/queue')();
 	txBegin = require('./tx/begin');
 	createObserver = require('./tx/changeObserver');
+	mappedObserver = require('./tx/mappedObserver');
 	diffArray = require('./diff/array');
 	diffObject = require('./diff/object');
 
@@ -74,7 +76,7 @@ define(function(require) {
 				observer = joinpointObserver([
 					function(candidate) {
 						return candidate === proxy.get(to)
-							? createObserver(diffArray(diffObject), syncObservers) : null;
+							? mappedObserver(proxy.get.bind(proxy, to), diffArray(diffObject), syncObservers) : null;
 					}
 				]);
 
@@ -83,17 +85,19 @@ define(function(require) {
 
 				function syncObservers(changes, tx) {
 					return when.map(observers, function(observer) {
+						// TODO: Remove special cases for cola adapters
 						if(typeof observer === 'function') {
 							return tx.then(function() {
 								return proxy.invoke(observer, [changes]);
 							});
-						} else if(typeof observer.save === 'function') {
-							return tx.then(function() {
-								return observer.save(changes);
-							});
+						} else if(typeof observer.add === 'function') {
+							return syncCollectionHandler(observer, tx, changes);
 						}
 
-						return syncCollectionHandler(observer, tx, changes);
+						// Assume cola-tx datasource
+						return tx.then(function() {
+							return observer.update(changes);
+						});
 					});
 				}
 			}

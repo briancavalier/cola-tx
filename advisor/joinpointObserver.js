@@ -8,7 +8,7 @@ define(function(require) {
 	var when, propertyChangeObserver;
 
 	when = require('when');
-	propertyChangeObserver = require('../tx/propertyChangeObserver');
+//	propertyChangeObserver = require('../tx/propertyChangeObserver');
 
 	return function(observerTests, resultObserver) {
 
@@ -25,7 +25,7 @@ define(function(require) {
 			var prepared = args.reduce(function(prepared, candidate) {
 				var observer = findObserver(observerTests, candidate);
 				if(observer) {
-					prepared.push(observer(candidate)(candidate));
+					prepared.push(observer(candidate));
 				}
 
 				return prepared;
@@ -35,7 +35,8 @@ define(function(require) {
 				observer = findObserver(observerTests, target[name]);
 				if(observer) {
 					// TODO: Very ugly, but works
-					prepared.push(propertyChangeObserver(name, observer)(target)(target));
+					prepared.push(observer(target));
+//					prepared.push(propertyChangeObserver(name, observer)(target)(target));
 				}
 			}
 

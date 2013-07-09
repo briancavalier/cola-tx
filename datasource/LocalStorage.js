@@ -27,7 +27,7 @@ define(function(require) {
 			return data == null ? [] : JSON.parse(data);
 		},
 
-		save: function(changes) {
+		update: function(changes) {
 			if(!changes) return;
 			this.set(updateArray(this.fetch(), changes));
 		},

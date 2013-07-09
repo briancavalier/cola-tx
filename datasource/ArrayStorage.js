@@ -22,7 +22,7 @@ define(function(require) {
 			return this._array.slice();
 		},
 
-		save: function(changes) {
+		update: function(changes) {
 			this._array = updateArray(this.array, changes);
 		},
 
