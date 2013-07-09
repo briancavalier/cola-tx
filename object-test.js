@@ -7,8 +7,7 @@ txAspect = require('./advisor/aspect');
 joinpointObserver = require('./advisor/joinpointObserver');
 
 txBegin = require('./tx/begin');
-createObserver = require('./tx/changeObserver' +
-	'');
+createObserver = require('./tx/changeObserver');
 diffObject = require('./diff/object');
 
 function handler(changes, tx) {

@@ -68,15 +68,15 @@ define(function(require) {
 			return wire(options).then(bindTx);
 
 			function bindTx(options) {
-				var pointcut, observers, aspect;
+				var pointcut, handlers, aspect;
 
 				pointcut = options.methods || /^[^_]/;
-				observers = options.notify;
+				handlers = options.notify;
 
 				observer = joinpointObserver([
 					function(candidate) {
 						return candidate === proxy.get(to)
-							? mappedObserver(proxy.get.bind(proxy, to), diffArray(diffObject), syncObservers) : null;
+							? mappedObserver(proxy.get.bind(proxy, to), createObserver(diffArray(diffObject), syncObservers)) : null;
 					}
 				]);
 
@@ -84,19 +84,19 @@ define(function(require) {
 				aspects.push(proxy.advise(pointcut, aspect));
 
 				function syncObservers(changes, tx) {
-					return when.map(observers, function(observer) {
+					return when.map(handlers, function(handler) {
 						// TODO: Remove special cases for cola adapters
-						if(typeof observer === 'function') {
+						if(typeof handler === 'function') {
 							return tx.then(function() {
-								return proxy.invoke(observer, [changes]);
+								return proxy.invoke(handler, [changes]);
 							});
-						} else if(typeof observer.add === 'function') {
-							return syncCollectionHandler(observer, tx, changes);
+						} else if(typeof handler.add === 'function') {
+							return syncCollectionHandler(handler, tx, changes);
 						}
 
 						// Assume cola-tx datasource
 						return tx.then(function() {
-							return observer.update(changes);
+							return handler.update(changes);
 						});
 					});
 				}

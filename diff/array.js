@@ -7,8 +7,8 @@ define(function() {
 
 		return function(before) {
 
-			var snapshot = before.reduce(function(snapshot, item, index) {
-				var s = snapshot[item.id] = {
+			var snapshot = before.reduce(function(snapshots, item, index) {
+				var s = snapshots[item.id] = {
 					item: item,
 					index: index
 				};
@@ -17,7 +17,7 @@ define(function() {
 					s.compare = snapshotItem(item);
 				}
 
-				return snapshot;
+				return snapshots;
 			}, {});
 
 			return function(after) {
@@ -31,16 +31,8 @@ define(function() {
 						// Changed items
 						s = snapshot[item.id];
 
-						// Shallow compare
-						if(s.item !== item) {
-							// Different object with the same id, call it an update
-							changes.push({
-								type: 'updated',
-								object: after,
-								name: index
-							});
-						} else if(s.compare) {
-							// Deep compare if same object.
+						if(s && s.compare) {
+							// Deep compare if possible
 							diff = s.compare(item);
 							if(diff) {
 								changes.push({
@@ -50,6 +42,14 @@ define(function() {
 									changes: diff
 								});
 							}
+						} else if(s.item !== item) {
+							// Shallow compare
+							// Different object with the same id
+							changes.push({
+								type: 'updated',
+								object: after,
+								name: index
+							});
 						}
 						seenIds[item.id] = 1;
 					} else {

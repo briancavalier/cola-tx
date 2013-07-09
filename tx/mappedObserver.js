@@ -1,12 +1,12 @@
 (function(define) {
 define(function() {
 
-	return function createObserver(map, prepareDiff, handler) {
+	return function createObserver(map, observer) {
 		return function(x) {
-			var diff = prepareDiff(map(x));
+			observer = observer(map(x));
 
-			return function(tx) {
-				return handler(diff(map(x)), tx);
+			return function(y, tx) {
+				return observer(map(y), tx);
 			};
 		};
 	};

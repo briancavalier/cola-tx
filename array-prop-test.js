@@ -1,4 +1,4 @@
-var meld, queue, txAspect, txBegin, diffArray, diffObject, joinpointObserver, createObserver, propertyChangeObserver, observer;
+var meld, queue, txAspect, txBegin, diffArray, diffObject, joinpointObserver, createObserver, observer;
 
 meld = require('meld');
 
@@ -8,7 +8,6 @@ joinpointObserver = require('./advisor/joinpointObserver');
 
 txBegin = require('./tx/begin');
 createObserver = require('./tx/changeObserver');
-propertyChangeObserver = require('./tx/propertyChangeObserver');
 diffArray = require('./diff/array');
 diffObject = require('./diff/object');
 

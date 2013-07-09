@@ -5,8 +5,8 @@ define(function() {
 		return function(x) {
 			var diff = prepareDiff(x);
 
-			return function(tx) {
-				return handler(diff(x), tx);
+			return function(y, tx) {
+				return handler(diff(y), tx);
 			};
 		};
 	};

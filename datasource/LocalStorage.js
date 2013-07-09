@@ -29,10 +29,8 @@ define(function(require) {
 
 		update: function(changes) {
 			if(!changes) return;
-			this.set(updateArray(this.fetch(), changes));
-		},
 
-		set: function(data) {
+			var data = updateArray(this.fetch(), changes);
 			this._storage.setItem(this._namespace, JSON.stringify(data));
 		}
 

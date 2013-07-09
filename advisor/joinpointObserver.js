@@ -5,10 +5,10 @@
 (function(define) {
 define(function(require) {
 
-	var when, propertyChangeObserver;
+	var when, propertyChangeObserver, undef;
 
 	when = require('when');
-//	propertyChangeObserver = require('../tx/propertyChangeObserver');
+	propertyChangeObserver = require('../tx/propertyChangeObserver');
 
 	return function(observerTests, resultObserver) {
 
@@ -25,7 +25,7 @@ define(function(require) {
 			var prepared = args.reduce(function(prepared, candidate) {
 				var observer = findObserver(observerTests, candidate);
 				if(observer) {
-					prepared.push(observer(candidate));
+					prepared.push(observer(candidate).bind(undef, candidate));
 				}
 
 				return prepared;
@@ -34,9 +34,8 @@ define(function(require) {
 			for(name in target) {
 				observer = findObserver(observerTests, target[name]);
 				if(observer) {
-					// TODO: Very ugly, but works
-					prepared.push(observer(target));
-//					prepared.push(propertyChangeObserver(name, observer)(target)(target));
+					observer = propertyChangeObserver(name, observer);
+					prepared.push(observer(target).bind(undef, target));
 				}
 			}
 
