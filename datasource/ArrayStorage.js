@@ -14,11 +14,11 @@ define(function(require) {
 	var updateArray = require('./updateArray');
 
 	function ArrayStorage(array) {
-		this._array = data || [];
+		this._array = array || [];
 	}
 
 	ArrayStorage.prototype = {
-		fetch: function(options) {
+		fetch: function(/*options*/) {
 			return this._array.slice();
 		},
 

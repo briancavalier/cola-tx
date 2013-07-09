@@ -18,17 +18,15 @@ define(function(require) {
 	}
 
 	LocalStorage.prototype = {
-		/**
-		 * @param {object?} options
-		 * @returns {*}
-		 */
-		fetch: function(options) {
+		fetch: function(/*options*/) {
 			var data = this._storage.getItem(this._namespace);
 			return data == null ? [] : JSON.parse(data);
 		},
 
 		update: function(changes) {
-			if(!changes) return;
+			if(!changes) {
+				return;
+			}
 
 			var data = updateArray(this.fetch(), changes);
 			this._storage.setItem(this._namespace, JSON.stringify(data));
