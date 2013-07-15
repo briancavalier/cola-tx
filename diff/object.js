@@ -37,7 +37,8 @@ define(function() {
 					changes.push({
 						type: 'deleted',
 						object: after,
-						name: key
+						name: key,
+						oldValue: snapshot[key]
 					});
 				}
 

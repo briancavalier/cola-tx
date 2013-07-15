@@ -48,7 +48,8 @@ define(function() {
 							changes.push({
 								type: 'updated',
 								object: after,
-								name: index
+								name: index,
+								oldValue: s.item
 							});
 						}
 						seenIds[item.id] = 1;
