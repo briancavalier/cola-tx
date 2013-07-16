@@ -8,46 +8,52 @@ define(function() {
 		}, {});
 
 		return function(after) {
-			var changes = Object.keys(after).reduce(function(changes, key) {
-				if(key in snapshot) {
-					if(snapshot[key] !== after[key]) {
-						// Property value changed
-						changes.push({
-							type: 'updated',
-							object: after,
-							name: key,
-							oldValue: snapshot[key]
-						});
-					}
-				} else {
-					// Property added
-					changes.push({
-						type: 'new',
-						object: after,
-						name: key
-					});
-				}
-
-				return changes;
-			}, []);
-
-			changes = Object.keys(snapshot).reduce(function(changes, key) {
-				if(!(key in after)) {
-					// Property deleted
-					changes.push({
-						type: 'deleted',
-						object: after,
-						name: key,
-						oldValue: snapshot[key]
-					});
-				}
-
-				return changes;
-			}, changes);
-
-			return changes.length ? changes : false;
+			return diffObjects(after, snapshot);
 		};
 	};
+
+	function diffObjects(o1, o2) {
+		var changes = Object.keys(o1).reduce(function (changes, key) {
+			if (key in o2) {
+				if (o2[key] !== o1[key]) {
+					// Property value changed
+					changes.push({
+						type: 'updated',
+						object: o1,
+						name: key,
+						oldValue: o2[key]
+					});
+				}
+			} else {
+				// Property added
+				changes.push({
+					type: 'new',
+					object: o1,
+					name: key
+				});
+			}
+
+			return changes;
+		}, []);
+
+		changes = Object.keys(o2).reduce(function (changes, key) {
+			if (!(key in o1)) {
+				// Property deleted
+				changes.push({
+					type: 'deleted',
+					object: o1,
+					name: key,
+					oldValue: o2[key]
+				});
+			}
+
+			return changes;
+		}, changes);
+
+		return changes.length
+			? changes
+			: false;
+	}
 
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(); }));
